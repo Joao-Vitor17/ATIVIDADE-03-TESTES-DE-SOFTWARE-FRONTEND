@@ -36,7 +36,7 @@ test.describe('Gerenciamento de Livros (E2E)', () => {
         break;
       }
 
-      const btnProx = page.locator('button').filter({ has: page.locator('svg.lucide-chevron-right') });
+      const btnProx = page.locator('button').filter({ has: page.locator('btn btn--secondary btn--sm') });
       if (await btnProx.isVisible() && !(await btnProx.isDisabled())) {
         await btnProx.click();
         await page.waitForTimeout(500);
@@ -59,6 +59,21 @@ test.describe('Gerenciamento de Livros (E2E)', () => {
   });
 
   // test de excluir registro
+  
+  test('deve permitir excluir um livro', async ({ page }) => {
+    await page.goto('/livros');
+    await page.waitForSelector('.list-card');
+
+    const primeiroLivro = page.locator('.list-card').first();
+    const titulo = await primeiroLivro.locator('.list-card__title').innerText();
+
+    await primeiroLivro.locator('button:has-text("Excluir")').click();
+    await expect(page.locator('.modal')).toBeVisible();
+    await page.click('.modal button:has-text("Excluir")', { force: true });
+
+    await expect(page.locator('.modal')).not.toBeVisible();
+    await expect(page.locator('.list-card', { hasText: titulo })).not.toBeVisible();
+  });
 
   // test de editar registro
 });

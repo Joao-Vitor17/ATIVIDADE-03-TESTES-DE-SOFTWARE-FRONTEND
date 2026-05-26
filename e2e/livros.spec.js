@@ -76,4 +76,26 @@ test.describe('Gerenciamento de Livros (E2E)', () => {
   });
 
   // test de editar registro
+  test('deve permitir editar um livro', async ({ page }) => {
+    await page.goto('/livros');
+    await page.waitForSelector('.list-card');
+
+    const primeiroLivro = page.locator('.list-card').first();
+    const tituloOriginal = await primeiroLivro.locator('.list-card__title').innerText();
+
+    await primeiroLivro.locator('button:has-text("Editar")').click();
+    await expect(page.locator('.modal')).toBeVisible();
+
+    const inputTitulo = page.locator('input[name="titulo"]');
+    await inputTitulo.click();
+    await inputTitulo.fill(tituloOriginal + 'EDITADO');
+
+    const responsePromise = page.waitForResponse(resp => resp.url().includes('/livros') && resp.request().method() === 'PUT' && resp.status() >= 200 && resp.status() < 300);
+
+    await page.getByRole('button', { name: 'Confirmar' }).click();
+    await responsePromise;
+
+    await expect(page.locator('modal')).not.toBeVisible();
+    await expect(page.locator('.list-card', { hasText: tituloOriginal + 'EDITADO' })).toBeVisible();
+  });
 });

@@ -172,7 +172,7 @@ export function UsuariosPage() {
                     <Edit2 size={16} /> Editar
                   </button>
                   <button className="btn btn--danger btn--sm" style={{ flex: 1 }} onClick={() => handleRemover(u.id, u.nome)}>
-                    <Trash2 size={16} />
+                    <Trash2 size={16} /> Excluir
                   </button>
                 </div>
               </div>

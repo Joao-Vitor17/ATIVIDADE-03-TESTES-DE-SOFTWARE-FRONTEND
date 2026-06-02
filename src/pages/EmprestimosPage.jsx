@@ -150,7 +150,15 @@ export function EmprestimosPage() {
     setModalAberto(true);
   };
 
-  const livrosDisponiveis = livros.filter(l => (l.disponivel ?? 0) > 0 || (editando && l.id === editando.livro_id));
+  const livrosEmprestados = new Set(
+    lista
+      .filter(e => !e.data_devolucao_real)
+      .map(e => e.livro_id)
+  );
+
+  const livrosDisponiveis = livros.filter(
+    l => !livrosEmprestados.has(l.id) || (editando && l.id === editando.livro_id)
+  );
 
   return (
     <div className="stack">
@@ -189,7 +197,7 @@ export function EmprestimosPage() {
         <>
           <div className="list-cards">
             {atual.map(e => {
-              const ativo = !e.data_devolucao; // Usando data_devolucao conforme backend
+              const ativo = !e.data_devolucao_real; // Usando data_devolucao conforme backend
               return (
                 <div key={e.id} className="list-card">
                   <div className="list-card__top">

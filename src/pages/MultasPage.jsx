@@ -12,12 +12,11 @@ import {
   ChevronRight, 
   CheckCircle,
   AlertCircle,
-  Clock,
-  CircleDollarSign
+  Clock
 } from 'lucide-react';
 
 export function MultasPage() {
-  const { isAdmin, usuario } = useAuth();
+  const { isAdmin } = useAuth();
   const [multas, setMultas] = useState([]);
   const [emprestimos, setEmprestimos] = useState([]);
   const [erro, setErro] = useState('');
@@ -40,7 +39,11 @@ export function MultasPage() {
         multaService.listarMultas(),
         isAdmin ? emprestimoService.listarEmprestimos() : Promise.resolve([])
       ]);
-      setMultas(Array.isArray(m) ? m : (m ? [m] : []));
+      
+      const listaCompleta = Array.isArray(m) ? m : (m ? [m] : []);
+      const apenasPendentes = listaCompleta.filter(multa => !multa.quitado);
+      
+      setMultas(apenasPendentes);
       setEmprestimos(e);
     } catch (e) {
       setErro('Erro ao carregar dados de multas.');
@@ -68,8 +71,8 @@ export function MultasPage() {
       emprestimo_id: Number(fd.get('emprestimo_id')),
       tipo: fd.get('tipo'),
       valor: parseFloat(fd.get('valor')),
-      obs: fd.get('obs'),
-      quitado: fd.get('quitado') === 'on' ? 1 : 0
+      descricao: fd.get('descricao'),
+      quitado: fd.get('quitado') === 'on' ? true : false
     };
 
     setErro('');
@@ -187,9 +190,9 @@ export function MultasPage() {
                     </span>
                   </div>
 
-                  {m.obs && (
+                  {m.descricao && (
                     <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0.25rem 0' }}>
-                       <i>"{m.obs}"</i>
+                       <i>"{m.descricao}"</i>
                     </p>
                   )}
 
@@ -270,8 +273,8 @@ export function MultasPage() {
                   <input type="number" step="0.01" name="valor" defaultValue={editando?.valor || ''} required />
                 </div>
                 <div className="form-field">
-                  <label>Observações</label>
-                  <input name="obs" defaultValue={editando?.obs || ''} placeholder="Opcional" />
+                  <label>Descrição</label>
+                  <input name="descricao" defaultValue={editando?.descricao || ''} placeholder="Opcional" />
                 </div>
                 {editando && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
